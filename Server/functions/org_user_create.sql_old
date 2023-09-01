@@ -1,0 +1,108 @@
+﻿-- Function: org.user_create(character varying,character varying,text[],character varying)
+
+-- DROP FUNCTION IF EXISTS org.user_create(character varying,character varying,text[],character varying);
+
+--CREATE OR REPLACE FUNCTION org.user_create(pulogin character varying, ppas character varying, prole character varying, pnote character varying) RETURNS integer AS
+CREATE OR REPLACE FUNCTION org.user_create(pulogin character varying, ppas character varying, role_values text[], pnote character varying) RETURNS integer AS
+$BODY$ 
+-- *************************************************************************************************************************
+-- Входные параметры: 	pulogin 	- логин пользователя
+--                    	ppas     	- описание версии
+--						proles		- роли назначеные пользователю
+-- Проект: bst
+-- Автор: Козловский П. С.
+-- Дата: 2021-01-10
+-- Описание: Создает пользователя в БД
+-- запрос:
+-- select org.user_create('ttt_admin', '111', 'bst_admin', 'тест создания роли хранимой процедурой');
+-- *************************************************************************************************************************
+DECLARE
+	result INTEGER;
+	pid integer;
+	
+	--role_values text[]; -- список ролей в виде массива из строки
+	
+	i integer;
+	
+	RoleParamCreate character varying;
+	
+BEGIN
+	
+	--преобразуем строку, список ролей, в массив
+	--role_values = string_to_array(prole,'~');
+
+	--добавляем запись в таблицу пользователей, получаяя ее ID
+	INSERT INTO org.users (idclient,ulogin,pass,status,note) VALUES	(2, pulogin, md5(ppas), 0, pnote) RETURNING iduser INTO pid;
+
+	-- по умолчанию запрещаем создание ролей пользователю
+	RoleParamCreate:='NOCREATEROLE';
+
+	RAISE INFO ' 01';
+	
+	--формируем список параметров для создания роли/пользователя
+	For i in 1..array_length(role_values,1) loop
+	
+		-- если есть роль админа - то позволяем создавать роли
+		if (role_values[i]='bst_admin') THEN
+			RoleParamCreate:='CREATEROLE';
+		END IF;
+		
+		RAISE INFO 'обработка роли %',role_values[i];
+	end loop;
+	
+	--создаем роль/пользователя
+	EXECUTE 'CREATE ROLE '|| pulogin || ' NOSUPERUSER NOCREATEDB '||RoleParamCreate||' INHERIT LOGIN PASSWORD ' || CHR(39) || ppas || CHR(39);
+	
+	--GRANTим наследование ролей для вновь созданной и пишем роли в таблицу
+	For i in 1..array_length(role_values,1) loop
+		EXECUTE 'GRANT ' || role_values[i] || ' TO ' || pulogin;
+		INSERT INTO org.user_roles (iduser, ulogin, rolename, userole)	VALUES	(pid, pulogin, role_values[i], true);
+	end loop;
+	
+	/*
+	
+	IF prole='bst_admin' THEN
+		--добавляем запись в таблицу пользователей
+		INSERT INTO org.users (idclient,ulogin,pass,status,note) VALUES	(2, pulogin, md5(ppas), 0, pnote) RETURNING iduser INTO pid;
+
+		--создаем роль в базе
+		--EXECUTE 'CREATE USER ' || vuser || ' NOSUPERUSER INHERIT LOGIN PASSWORD ' || CHR(39) || ppassword || CHR(39);
+		EXECUTE 'CREATE ROLE '|| pulogin || ' NOSUPERUSER NOCREATEDB CREATEROLE INHERIT LOGIN PASSWORD ' || CHR(39) || ppas || CHR(39);
+		EXECUTE 'GRANT ' || prole || ' TO ' || pulogin;
+
+		--добавляем роли в таблицу роелй
+		INSERT INTO org.user_roles (iduser, ulogin, rolename, userole)	VALUES	(pid, pulogin, prole, true);
+--		INSERT INTO org.user_roles (iduser, ulogin, rolename, userole)	VALUES	(pid, pulogin, 'bst_admin', true);
+--		INSERT INTO org.user_roles (iduser, ulogin, rolename, userole)	VALUES	(pid, pulogin, 'bst_user', false);
+--		INSERT INTO org.user_roles (iduser, ulogin, rolename, userole)	VALUES	(pid, pulogin, 'bst_guest', false);
+	END IF;
+	
+	IF prole='bst_user' THEN
+		INSERT INTO org.users (idclient,ulogin,pass,status,note) VALUES	(2, pulogin, ppas, 0, pnote) RETURNING iduser INTO pid;
+		EXECUTE 'CREATE ROLE ' || pulogin || ' NOSUPERUSER NOCREATEDB CREATEROLE INHERIT LOGIN PASSWORD ' || CHR(39) || ppas || CHR(39);
+		GRANT prole TO pulogin;
+		
+		INSERT INTO org.user_roles (iduser, ulogin, rolename, userole)	VALUES	(pid, pulogin, prole, true);
+	END IF;
+	
+	IF prole='bst_guest' THEN
+		INSERT INTO org.users (idclient,ulogin,pass,status,note) VALUES	(2, pulogin, ppas, 0, pnote) RETURNING iduser INTO pid;
+		EXECUTE 'CREATE ROLE ' || pulogin || ' NOSUPERUSER NOCREATEDB CREATEROLE INHERIT LOGIN PASSWORD ' || CHR(39) || ppas || CHR(39);
+		GRANT prole TO pulogin;
+		
+		INSERT INTO org.user_roles (iduser, ulogin, rolename, userole)	VALUES	(pid, pulogin, prole, true);
+	END IF;
+	*/	
+	
+	RETURN result;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+ALTER FUNCTION org.user_create(character varying,character varying,text[],character varying) OWNER TO sadmin;
+GRANT ALL ON FUNCTION org.user_create(character varying,character varying,text[],character varying) TO sadmin;
+COMMENT ON FUNCTION org.user_create(character varying,character varying,text[],character varying) IS 'Создает пользователя в БД';
+
+GRANT EXECUTE ON FUNCTION org.user_create(character varying,character varying,text[],character varying) TO bst_admin  WITH GRANT OPTION;
+--GRANT EXECUTE ON FUNCTION org.user_create(character varying,character varying,text[],character varying) TO bst_user  WITH GRANT OPTION;
+--GRANT EXECUTE ON FUNCTION org.user_create(character varying,character varying,text[],character varying) TO bst_guest  WITH GRANT OPTION;
