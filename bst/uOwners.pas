@@ -36,6 +36,9 @@ type
     grBaseDBTableView1sname: TcxGridDBColumn;
     grBaseDBTableView1phone: TcxGridDBColumn;
     grBaseDBTableView1ownertype: TcxGridDBColumn;
+    procedure actCreateExecute(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure actEditExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -48,5 +51,43 @@ var
 implementation
 
 {$R *.dfm}
+
+uses uBaseForm, uRes, uOwnersNew;
+
+procedure TfmOwners.actCreateExecute(Sender: TObject);
+begin
+//  inherited;
+//  qBase.Append;
+
+    fmOwnersNew := TfmOwnersNew.Create(Application);
+    fmOwnersNew.Init;
+   // fmObjectsNew.Visible:=false;
+    fmOwnersNew.ShowModal;
+
+    qBase.Refresh;
+end;
+
+procedure TfmOwners.actEditExecute(Sender: TObject);
+begin
+  inherited;
+
+  //ShowMessage(qBase.Fields.FieldByName('idowner').AsString);
+
+  fmOwnersNew := TfmOwnersNew.Create(Application);
+  //fmOwnersNew.Init(qBase.ParamByName('idowner').AsInteger);
+  fmOwnersNew.Init;
+  fmOwnersNew.loadOwner(qBase.Fields.FieldByName('idowner').AsInteger);
+   // fmObjectsNew.Visible:=false;
+  fmOwnersNew.ShowModal;
+
+    qBase.Refresh;
+    SetStatusView;
+end;
+
+procedure TfmOwners.FormShow(Sender: TObject);
+begin
+  inherited;
+  cxButCreate.Visible := True;
+end;
 
 end.

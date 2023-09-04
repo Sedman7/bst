@@ -1,14 +1,20 @@
 inherited fmOwners: TfmOwners
   Caption = #1046#1080#1083#1100#1094#1099'/'#1042#1083#1072#1076#1077#1083#1100#1094#1099
+  ClientHeight = 504
+  ClientWidth = 1134
   FormStyle = fsMDIChild
   Visible = True
+  ExplicitWidth = 1150
+  ExplicitHeight = 542
   PixelsPerInch = 96
   TextHeight = 13
   inherited grBase: TcxGrid
     Top = 88
-    Height = 473
+    Width = 1134
+    Height = 390
     ExplicitTop = 88
-    ExplicitHeight = 473
+    ExplicitWidth = 1134
+    ExplicitHeight = 390
     inherited grBaseDBTableView1: TcxGridDBTableView
       object grBaseDBTableView1idowner: TcxGridDBColumn
         Caption = #1050#1086#1076
@@ -47,9 +53,16 @@ inherited fmOwners: TfmOwners
       end
     end
   end
+  inherited cxDBNavigator1: TcxDBNavigator
+    Top = 486
+    ExplicitTop = 486
+  end
+  inherited cxGroupBox1: TcxGroupBox
+    Width = 1134
+  end
   inherited qBase: TZQuery
     SQL.Strings = (
-      'select * '
+      'select idowner, idobject, fam,'#9'"name", sname, phone, ownertype'
       'from main.owners')
     Left = 944
     Top = 136

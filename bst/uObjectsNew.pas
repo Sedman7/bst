@@ -51,6 +51,10 @@ type
     cxButton2: TcxButton;
     cxButton3: TcxButton;
     cxCheckClose: TcxCheckBox;
+    cxLabel8: TcxLabel;
+    cxLookupOwner: TcxLookupComboBox;
+    qOwners: TZQuery;
+    dsOwner: TDataSource;
     procedure cxLookupComboBox1PropertiesChange(Sender: TObject);
     procedure actEraserExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -60,6 +64,7 @@ type
     procedure actSaveExecute(Sender: TObject);
     procedure cxLookupTypePropertiesChange(Sender: TObject);
     procedure cxTextNamePropertiesChange(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -95,10 +100,10 @@ begin
   cxLookUpStreet.Enabled:=false;
 
   cxDom.EditValue:=null;
-  cxKorp.EditValue:=false;
-  cxInd.EditValue:=false;
+  cxKorp.EditValue:=null;
+  cxInd.EditValue:=null;
 
-  cxLookUpType.EditValue:=false;  //тип объекта
+  cxLookUpType.EditValue:=null;  //тип объекта
 
 end;
 
@@ -142,25 +147,31 @@ End;
 
 procedure TfmObjectsNew.actSaveExecute(Sender: TObject);
 Const
-  SQL:string='select main.object_create(:pname, :pidtown, :pidstreet, :pdom, :pdomindex, :pdomkorp, :pobjtype);';
+  SQL:string='select main.object_create(:pname, :pidtown, :pidstreet, :pdom, :pdomindex, :pdomkorp, :pobjtype, :pidowner);';
 begin
   inherited;
 
   //если все поля заполнены правильно
   if MakeColors(true)=0 then
   //запрос подтверждени сохранения данных
-  If MessageBox(handle, PChar('Создать объект ['+cxTextName.Text+'] в базе?'), PChar('Создание объекта'), MB_YESNO+MB_ICONQUESTION)=idyes then Begin
-    Res.ExecSQL(SQL,'pname;pidtown;pidstreet;pdom;pdomindex;pdomkorp;pobjtype',
-                    [cxTextName.Text,cxLookUpTown.EditValue,cxLookupStreet.EditValue,cxDom.EditValue,cxInd.EditValue,cxKorp.EditValue,cxLookupType.EditValue]);
+    If MessageBox(handle, PChar('Создать объект ['+cxTextName.Text+'] в базе?'), PChar('Создание объекта'), MB_YESNO+MB_ICONQUESTION)=idyes then Begin
+      Res.ExecSQL(SQL,'pname;pidtown;pidstreet;pdom;pdomindex;pdomkorp;pobjtype;pidowner',
+                      [cxTextName.Text,cxLookUpTown.EditValue,cxLookupStreet.EditValue,VarToInt(cxDom.EditValue),VarToStr(cxInd.EditValue),VarToInt(cxKorp.EditValue),cxLookupType.EditValue,cxLookupOwner.EditValue]);
 
-    //закрываем окно если стоит причка, если нет - очищаем параметры
-    if cxCheckClose.Checked then Close
-      Else Begin
-        actEraser.Execute;
-        MakeColors(false);
-      End;
+      //закрываем окно если стоит причка, если нет - очищаем параметры
+      if cxCheckClose.Checked then Close
+        Else Begin
+          actEraser.Execute;
+          MakeColors(false);
+        End;
 
-  End;
+    End;
+end;
+
+procedure TfmObjectsNew.Button1Click(Sender: TObject);
+begin
+  inherited;
+  ShowMessage(VarToStr(cxLookupType.EditValue));
 end;
 
 procedure TfmObjectsNew.cxDomKeyPress(Sender: TObject; var Key: Char);
@@ -206,10 +217,12 @@ begin
   qTown.Close;
   qStreet.Close;
   qTypes.Close;
+  qOwners.Close;
 
   qTown.Open;
   qStreet.Open;
   qTypes.Open;
+  qOwners.Open;
 
   //инициализируем стартовые параметры
   actEraser.Execute;
@@ -221,6 +234,9 @@ begin
 
   //скрыть кнопку New
   cxButCreate.Visible:=false;
+
+  //формируем значения по умолчанию
+  cxLookupType.EditValue := 1;
 
   //разукрасить
   MakeColors(false);

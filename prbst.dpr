@@ -16,7 +16,8 @@ uses
   uScaleType in 'spr\uScaleType.pas' {fmSprScaleType},
   uSprStatus in 'spr\uSprStatus.pas' {fmSprStatus},
   uObjectsNew in 'bst\uObjectsNew.pas' {fmObjectsNew},
-  uScales in 'bst\uScales.pas' {fmScales};
+  uScales in 'bst\uScales.pas' {fmScales},
+  uOwnersNew in 'bst\uOwnersNew.pas' {fmOwnersNew};
 
 {$R *.res}
 

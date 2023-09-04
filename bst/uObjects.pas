@@ -50,6 +50,7 @@ type
     grBaseDBTableView1domkorp: TcxGridDBColumn;
     grBaseDBTableView1name_1: TcxGridDBColumn;
     grBaseDBTableView1znach: TcxGridDBColumn;
+    cxStyleDisabled: TcxStyle;
     procedure actCreateExecute(Sender: TObject);
     procedure actEditExecute(Sender: TObject);
     procedure actDelExecute(Sender: TObject);

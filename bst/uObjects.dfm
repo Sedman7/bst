@@ -19,49 +19,69 @@ inherited fmObjects: TfmObjects
     inherited grBaseDBTableView1: TcxGridDBTableView
       OptionsData.Editing = False
       OptionsData.Inserting = False
+      OptionsView.HeaderHeight = 35
       object grBaseDBTableView1idobject: TcxGridDBColumn
         Caption = #1050#1086#1076
         DataBinding.FieldName = 'idobject'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
         Width = 47
       end
       object grBaseDBTableView1name: TcxGridDBColumn
         Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
         DataBinding.FieldName = 'name'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
         Width = 130
       end
       object grBaseDBTableView1name_1: TcxGridDBColumn
         Caption = #1059#1083#1080#1094#1072
-        DataBinding.FieldName = 'name_1'
+        DataBinding.FieldName = 'sname'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
         Width = 119
       end
       object grBaseDBTableView1dom: TcxGridDBColumn
         Caption = #8470' '#1044#1086#1084#1072
         DataBinding.FieldName = 'dom'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
         Width = 58
       end
       object grBaseDBTableView1domkorp: TcxGridDBColumn
-        Caption = #1050#1086#1088#1087#1091#1089
+        Caption = #1050#1086#1088#1087#1091#1089' (1,2...)'
         DataBinding.FieldName = 'domkorp'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
         Width = 53
       end
       object grBaseDBTableView1domindex: TcxGridDBColumn
-        Caption = #1048#1085#1076#1077#1082#1089
+        Caption = #1048#1085#1076#1077#1082#1089' (A,'#1041'...)'
         DataBinding.FieldName = 'domindex'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
         Width = 56
       end
       object grBaseDBTableView1fio: TcxGridDBColumn
-        Caption = #1060#1080#1086' '#1074#1083#1072#1076#1077#1083#1100#1094#1072
+        Caption = #1060#1080#1086' '#1074#1083#1072#1076#1077#1083#1100#1094#1072' / '#1086#1090#1074#1077#1090#1089#1090#1074#1077#1085#1085#1086#1075#1086
         DataBinding.FieldName = 'fio'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
         Width = 174
       end
       object grBaseDBTableView1phone: TcxGridDBColumn
         Caption = #1058#1077#1083#1077#1092#1086#1085
         DataBinding.FieldName = 'phone'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
         Width = 110
       end
       object grBaseDBTableView1znach: TcxGridDBColumn
         Caption = #1058#1080#1087' '#1086#1073#1098#1077#1082#1090#1072
         DataBinding.FieldName = 'znach'
+        HeaderAlignmentHorz = taCenter
+        Options.Editing = False
+        Styles.Content = cxStyleDisabled
         Width = 107
       end
     end
@@ -104,7 +124,22 @@ inherited fmObjects: TfmObjects
   end
   inherited qBase: TZQuery
     SQL.Strings = (
-      'select '#9'ob.idobject, ob.name, ot.znach, st."name", '
+      'select o.idobject,'
+      
+        'concat(t.znach, '#39' '#39', o."name", cast(o.domkorp as varchar), o.dom' +
+        'index) as "name",'
+      'o.dom, o.domkorp, o.domindex,'
+      's."name" as sname,'
+      'concat(w.fam,'#39' '#39', w."name", '#39' '#39', w.sname) as fio, w.phone,'
+      't.znach'
+      'from main.objects o'
+      'left join spr.streets s on s.idstreet=o.idstreet'
+      'join spr.objtype t on o.objtype = t.idobjtype'
+      'left join main.owners w on o.idowner = w.idowner'
+      'order by o.dom'
+      ''
+      '/*select '#9'ob.idobject'
+      ', ob.name, ot.znach, st."name", '
       #9#9'ob.dom, ob.domkorp, ob.domindex, '
       
         #9#9'ow.fam||'#39' '#39'||substring(ow."name" from 1 for 1)||'#39'. '#39'||substrin' +
@@ -112,10 +147,11 @@ inherited fmObjects: TfmObjects
       #9#9'ow.phone '
       'from main.objects ob '
       'left join main.streets st on st.idstreet=ob.idstreet'
-      'join spr.objtype ot on ob.objtype = ot.idobjtype '
+      'join spr.objtype ot on ob.objtype = ot.idobjtype'
       'left join main.owners ow on ow.idobject = ob.idobject '
       'where ob.status=0'
-      'order by ob.dom')
+      'order by ob.dom'
+      '*/')
     Left = 536
     Top = 8
   end
@@ -130,6 +166,15 @@ inherited fmObjects: TfmObjects
   end
   inherited cxStyleRepository1: TcxStyleRepository
     PixelsPerInch = 96
+    object cxStyleDisabled: TcxStyle
+      AssignedValues = [svFont, svTextColor]
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clGrayText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      TextColor = clMedGray
+    end
   end
   object dsAddInfo: TDataSource
     DataSet = qAddInfo

@@ -66,11 +66,14 @@ type
   public
     { Public declarations }
     FormStatus: String; //состояние формы view create edit
+    RecivedID : Integer; //переданный ID - если 0 то новая запись, если > 0 то редактируемая
     Procedure Init;
 
     Procedure SetStatusCreate;
     Procedure SetStatusEdit;
     Procedure SetStatusView;
+
+    Function VarToInt(i: variant):Integer;
   end;
 
 var
@@ -106,6 +109,12 @@ Begin
  // Self.Color:=clBtnFace;
   //showmessage(GetFormStatus);
 End;
+
+function TfmBaseForm.VarToInt(i: variant): Integer;
+begin
+  if VarIsNull(i) then Result := 0
+  else Result := Integer(i);
+end;
 
 procedure TfmBaseForm.actCreateExecute(Sender: TObject);
 begin

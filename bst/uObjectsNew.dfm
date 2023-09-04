@@ -43,7 +43,7 @@ inherited fmObjectsNew: TfmObjectsNew
   end
   object cxGroupBox2: TcxGroupBox [4]
     Left = 8
-    Top = 75
+    Top = 155
     Caption = #1056#1072#1089#1087#1086#1083#1086#1078#1077#1085#1080#1077
     TabOrder = 4
     Height = 110
@@ -127,7 +127,7 @@ inherited fmObjectsNew: TfmObjectsNew
   end
   object cxLookupType: TcxLookupComboBox [5]
     Left = 8
-    Top = 208
+    Top = 88
     Properties.DropDownRows = 16
     Properties.KeyFieldNames = 'idobjtype'
     Properties.ListColumns = <
@@ -137,12 +137,13 @@ inherited fmObjectsNew: TfmObjectsNew
     Properties.ListOptions.ShowHeader = False
     Properties.ListSource = dsTypes
     Properties.OnChange = cxLookupTypePropertiesChange
+    EditValue = 1
     TabOrder = 5
     Width = 161
   end
   object cxLabel7: TcxLabel [6]
     Left = 8
-    Top = 192
+    Top = 72
     Caption = #1058#1080#1087' '#1086#1073#1098#1077#1082#1090#1072'*'
   end
   object cxButton2: TcxButton [7]
@@ -171,6 +172,23 @@ inherited fmObjectsNew: TfmObjectsNew
     State = cbsChecked
     TabOrder = 9
   end
+  object cxLabel8: TcxLabel [10]
+    Left = 8
+    Top = 113
+    Caption = #1042#1083#1072#1076#1077#1083#1077#1094
+  end
+  object cxLookupOwner: TcxLookupComboBox [11]
+    Left = 8
+    Top = 128
+    Properties.KeyFieldNames = 'idowner'
+    Properties.ListColumns = <
+      item
+        FieldName = 'fio'
+      end>
+    Properties.ListSource = dsOwner
+    TabOrder = 11
+    Width = 305
+  end
   inherited qBase: TZQuery
     Left = 400
     Top = 8
@@ -190,9 +208,7 @@ inherited fmObjectsNew: TfmObjectsNew
   object qStreet: TZQuery
     Connection = Res.ZConnection1
     SQL.Strings = (
-      
-        'select * from main.streets where idtown = :PIDTOWN order by name' +
-        ' ')
+      'select * from spr.streets where idtown = :PIDTOWN order by name ')
     Params = <
       item
         DataType = ftUnknown
@@ -216,7 +232,7 @@ inherited fmObjectsNew: TfmObjectsNew
   object qTown: TZQuery
     Connection = Res.ZConnection1
     SQL.Strings = (
-      'Select * from main.towns order by name')
+      'Select * from spr.towns order by name')
     Params = <>
     Left = 400
     Top = 56
@@ -229,7 +245,12 @@ inherited fmObjectsNew: TfmObjectsNew
   object qTypes: TZQuery
     Connection = Res.ZConnection1
     SQL.Strings = (
-      'Select * from spr.objtype order by znach')
+      'Select  znach, idobjtype'
+      'from spr.objtype '
+      'order by znach'
+      ''
+      ''
+      '/*Select * from spr.objtype order by znach*/')
     Params = <>
     Left = 400
     Top = 160
@@ -238,5 +259,19 @@ inherited fmObjectsNew: TfmObjectsNew
     DataSet = qTypes
     Left = 448
     Top = 160
+  end
+  object qOwners: TZQuery
+    Connection = Res.ZConnection1
+    SQL.Strings = (
+      'select idowner, concat(fam, '#39' '#39', name, '#39' '#39', sname) as fio'
+      'from main.owners ')
+    Params = <>
+    Left = 400
+    Top = 208
+  end
+  object dsOwner: TDataSource
+    DataSet = qOwners
+    Left = 448
+    Top = 208
   end
 end
